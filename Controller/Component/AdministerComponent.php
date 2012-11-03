@@ -11,13 +11,39 @@ class AdministerComponent extends Component {
     $this->controller->set('pluralModel', $this->controller->name);
   }
   
+  public function admin_index() {
+    
+    $modelClass = $this->controller->modelClass;
+    $objects = $this->controller->$modelClass->find('all');
+    $setVar = strtolower(Inflector::pluralize($this->controller->modelClass));
+    $this->controller->set($setVar, $objects);
+    
+  }
+  
+  public function admin_remove($id = null) {
+    
+	  if (!empty($this->controller->request->params['named']['id'])) {
+  	  $id = $this->controller->request->params['named']['id'];
+	  }
+	  
+    $modelClass = $this->controller->modelClass;
+    if ($result = $this->controller->$modelClass->delete($id)) {
+      $this->Session->setFlash('Successfully removed '.$modelClass.'. gfg.', 'alerts/success');
+      $this->finishedRedirect();
+    } else {      
+      $this->Session->setFlash('Problem removing '.$single.' :/', 'alerts/error');
+      $this->finishedRedirect();
+    }
+    
+  }
+  
   public function admin_add() {
     if (!empty($this->controller->request->data)) {
       $single = $this->_single;
       $modelClass = $this->controller->modelClass;
       $this->Session->setFlash('Successfully added new '.$modelClass.'. gg.', 'alerts/success');
       if ($result = $this->controller->$modelClass->save($this->controller->request->data)) {
-        $this->successRedirect();
+        $this->finishedRedirect();
       } else {
         $this->Session->setFlash('Problem saving '.$this->single.' :/', 'alerts/error');
       }
@@ -37,10 +63,17 @@ class AdministerComponent extends Component {
      
     if (!empty($this->controller->request->data)) {
       if ($result = $this->controller->$modelClass->save($this->controller->request->data)) {
-        $this->Session->setFlash('Successfully updated '.$modelClass.'. gfg.', 'alerts/success');
-        $this->successRedirect();
+        $this->Session->setFlash('Successfully updated '.$modelClass.' gfg.', 'alerts/success');
+        $this->finishedRedirect();
       } else {
-        $this->Session->setFlash('Problem updating your '.$modelClass.'. :(', 'alerts/error');
+        $this->Session->setFlash('Problem updating your '.$modelClass.' :(', 'alerts/error');
+        
+        foreach ($this->controller->$modelClass->invalidFields() as $field) {
+          foreach ($field as $error) {
+            $this->Session->setFlash($error, 'alerts/error');
+          }
+        }
+        
       }
     } else {
       $this->controller->data = $this->controller->$modelClass->read();
@@ -50,21 +83,28 @@ class AdministerComponent extends Component {
   	
 	}
 	
-  private function successRedirect() {
+  private function finishedRedirect() {
+    $this->controller->redirect($this->_getRedirectUrl());
+  }
+  
+  private function _getRedirectUrl() {
     if (!empty($this->controller->request->query['return_to'])) {
       $redirect_url = urldecode($this->controller->request->query['return_to']);
 
+    } elseif (!empty($this->controller->request->data['return_to'])) {
+      
+      $redirect_url = urldecode($this->controller->request->data['return_to']);
+      
     } else {
       $redirect_url = '/'.strtolower($this->controller->name);
     }
     
     if (!empty($this->controller->request->query['id'])) {
-    
       $redirect_url .= '/id:'.$this->controller->request->query['id'];
-    
     }
-    $this->controller->redirect($redirect_url);
+    return $redirect_url;
   }
+  
 }
 
 ?>
