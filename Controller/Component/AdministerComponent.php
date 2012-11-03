@@ -1,28 +1,25 @@
 <?php
 class AdministerComponent extends Component {
-
-  public $mapMethods = array(
-    'admin_add',
-    'admin_edit',
-  );
   
   public $components = array('Session');
   
   public function initialize(&$c, $settings = array()) {
     parent::initialize($c, $settings);
-      $this->controller = $c;
-    
-  }  
+    $this->controller = $c;
+    $this->_single = Inflector::singularize($this->controller->name);
+    $this->controller->set('singleModel', $this->_single);
+    $this->controller->set('pluralModel', $this->controller->name);
+  }
   
   public function admin_add() {
-    $single = Inflector::singularize($this->name);
     if (!empty($this->controller->request->data)) {
+      $single = $this->_single;
       $modelClass = $this->controller->modelClass;
-        $this->Session->setFlash('Successfully added new '.$modelClass.'. gg.', 'alerts/success');
+      $this->Session->setFlash('Successfully added new '.$modelClass.'. gg.', 'alerts/success');
       if ($result = $this->controller->$modelClass->save($this->controller->request->data)) {
         $this->successRedirect();
       } else {
-        $this->Session->setFlash('Problem saving '.$single.' :/', 'alerts/error');
+        $this->Session->setFlash('Problem saving '.$this->single.' :/', 'alerts/error');
       }
       
     }
