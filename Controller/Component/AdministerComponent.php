@@ -2,6 +2,7 @@
 class AdministerComponent extends Component {
   
   public $components = array('Session');
+  public $helpers = array('Administer.AdministerForm');
   
   public function initialize(&$c, $settings = array()) {
     parent::initialize($c, $settings);
@@ -9,6 +10,7 @@ class AdministerComponent extends Component {
     $this->_single = Inflector::singularize($this->controller->name);
     $this->controller->set('singleModel', $this->_single);
     $this->controller->set('pluralModel', $this->controller->name);
+    $this->controller->set('is_'.strtolower($this->controller->name), true);
   }
   
   public function admin_index() {
@@ -17,7 +19,7 @@ class AdministerComponent extends Component {
     $objects = $this->controller->$modelClass->find('all');
     $setVar = strtolower(Inflector::pluralize($this->controller->modelClass));
     $this->controller->set($setVar, $objects);
-    
+    $this->setReturnTo();
   }
   
   public function admin_remove($id = null) {
@@ -34,7 +36,7 @@ class AdministerComponent extends Component {
       $this->Session->setFlash('Problem removing '.$single.' :/', 'alerts/error');
       $this->finishedRedirect();
     }
-    
+    $this->setReturnTo();
   }
   
   public function admin_add() {
@@ -47,10 +49,11 @@ class AdministerComponent extends Component {
       } else {
         $this->Session->setFlash('Problem saving '.$this->single.' :/', 'alerts/error');
       }
-      
     }
     
+    $this->setReturnTo();
   }
+  
   
 	public function admin_edit($id = null) {
   	
@@ -80,8 +83,28 @@ class AdministerComponent extends Component {
     }
     
     $this->controller->set(strtolower($modelClass), $this->controller->$modelClass->read());
+    $this->setReturnTo();
   	
 	}
+	
+  private function setReturnTo() {
+
+    if (empty($this->controller->return_to)) {
+      $plugin = '';
+      if (!empty($this->controller->plugin)) {
+        $plugin = strtolower($this->controller->plugin).'/';
+      }
+      $return_to = '/admin/'.$plugin.strtolower($this->controller->viewVars['pluralModel']); 
+      
+    } else {
+    
+      $return_to = $this->controller->return_to;
+      
+    }
+    
+    $this->controller->set('return_to', $return_to);
+    
+  }
 	
   private function finishedRedirect() {
     $this->controller->redirect($this->_getRedirectUrl());
