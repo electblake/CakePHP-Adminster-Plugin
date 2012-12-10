@@ -82,7 +82,30 @@ class AdministerComponent extends Component {
     $this->controller->set(strtolower($modelClass), $this->controller->$modelClass->read());
   	
 	}
-	
+
+  public function getReturnTo() {
+    $return_to = '';
+    if (!empty($this->controller->request->params['named']['return_to'])) {
+      $return_to = urldecode($this->controller->request->params['named']['return_to']);
+    }
+    if (!empty($this->controller->request->query['return_to'])) {
+      $return_to = urldecode($this->controller->request->query['return_to']);
+    }
+    return $return_to;
+  }
+
+  public function setReturnTo($default = null) {
+    $default = empty($default) ? $_SERVER['REQUEST_URI'] : $default;
+
+    $return_to = $this->getReturnTo();
+    if (!$return_to) {
+      $return_to = $default;
+    }
+
+    $this->controller->set('return_to', $return_to);
+
+  }
+
   private function finishedRedirect() {
     $this->controller->redirect($this->_getRedirectUrl());
   }
