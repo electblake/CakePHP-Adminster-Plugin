@@ -86,26 +86,30 @@ class AdministerComponent extends Component {
     $this->setReturnTo();
   	
 	}
-	
-  private function setReturnTo() {
 
-    if (empty($this->controller->return_to)) {
-      $plugin = '';
-      if (!empty($this->controller->plugin)) {
-        $plugin = strtolower($this->controller->plugin).'/';
-      }
-      $return_to = '/admin/'.$plugin.strtolower($this->controller->viewVars['pluralModel']); 
-      
-    } else {
-    
-      $return_to = $this->controller->return_to;
-      
+  public function getReturnTo() {
+    $return_to = '';
+    if (!empty($this->controller->request->params['named']['return_to'])) {
+      $return_to = urldecode($this->controller->request->params['named']['return_to']);
     }
-    
-    $this->controller->set('return_to', $return_to);
-    
+    if (!empty($this->controller->request->query['return_to'])) {
+      $return_to = urldecode($this->controller->request->query['return_to']);
+    }
+    return $return_to;
   }
-	
+
+  public function setReturnTo($default = null) {
+    $default = empty($default) ? $_SERVER['REQUEST_URI'] : $default;
+
+    $return_to = $this->getReturnTo();
+    if (!$return_to) {
+      $return_to = $default;
+    }
+
+    $this->controller->set('return_to', $return_to);
+
+  }
+
   private function finishedRedirect() {
     $this->controller->redirect($this->_getRedirectUrl());
   }
