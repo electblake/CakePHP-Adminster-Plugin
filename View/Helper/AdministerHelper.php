@@ -36,7 +36,20 @@ class AdministerHelper extends AppHelper {
 			return $this->_View->viewVars['return_to'];	
 		}
 		return false;
-		
+	}
+
+	public function isActive($path) {
+		if (!empty($this->_View->viewVars['admin_active'])) {
+			return stripos($this->_View->viewVars['admin_active'], $path) !== false;
+		}
+	}
+
+	public function activeClass($path) {
+		if ($this->isActive($path)) {
+			return 'active';
+		} else {
+			return '';
+		}
 	}
 }
 

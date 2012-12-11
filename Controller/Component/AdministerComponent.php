@@ -13,6 +13,10 @@ class AdministerComponent extends Component {
     $this->controller->set('is_'.strtolower($this->controller->name), true);
   }
   
+  public function beforeRender($c) {
+    $c->set('admin_active', $c->request->here);
+  }
+
   public function admin_index() {
     
     $modelClass = $this->controller->modelClass;
@@ -110,6 +114,9 @@ class AdministerComponent extends Component {
 
   }
 
+  public function setActive($path) {
+    $this->controller->set('admin_active', $path);
+  }
   private function finishedRedirect() {
     $this->controller->redirect($this->_getRedirectUrl());
   }
