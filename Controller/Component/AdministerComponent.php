@@ -5,7 +5,7 @@ class AdministerComponent extends Component {
   public $helpers = array('Administer.AdministerForm');
   
   public function initialize(Controller $controller, $settings = array()) {
-    parent::initialize($c, $settings);
+    parent::initialize($controller, $settings);
     $this->controller = $controller;
     $this->_single = Inflector::singularize($this->controller->name);
     $this->controller->set('singleModel', $this->_single);
