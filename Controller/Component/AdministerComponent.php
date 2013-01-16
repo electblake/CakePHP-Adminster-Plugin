@@ -4,7 +4,7 @@ class AdministerComponent extends Component {
   public $components = array('Session');
   public $helpers = array('Administer.AdministerForm');
   
-  public function initialize(&$c, $settings = array()) {
+  public function initialize(Controller &$c, $settings = array()) {
     parent::initialize($c, $settings);
     $this->controller = $c;
     $this->_single = Inflector::singularize($this->controller->name);
@@ -13,7 +13,7 @@ class AdministerComponent extends Component {
     $this->controller->set('is_'.strtolower($this->controller->name), true);
   }
   
-  public function beforeRender($c) {
+  public function beforeRender(Controller $c) {
     $c->set('admin_active', $c->request->here);
   }
 
